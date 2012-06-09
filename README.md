@@ -24,7 +24,7 @@ css:
 
 or
 
-    //= require dynatree/skin-vista
+    //= require dynatree/skin
     
 js:
 
