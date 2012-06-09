@@ -42,7 +42,7 @@ module Dynatree
             end
           end
           ch['title'] = item.name
-          ch['key']   = item.id
+          ch['key']   = item.id.to_s
           ch['children'] = self.recurse(item.id)
           ret << ch
         end
