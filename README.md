@@ -19,11 +19,15 @@ Or install it yourself as:
 ## Usage
 
 css:
+
     //= require dynatree/skin
+
 or
+
     //= require dynatree/skin-vista
     
 js:
+
     //= require dynatree/jquery.dynatree
 
 For dynatree usage and examples see: http://code.google.com/p/dynatree/
