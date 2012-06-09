@@ -74,3 +74,16 @@ Can be used to turn association select to a tree select, like this:
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## License
+
+Dynatree is
+
+	Copyright (c) 2008-2011, Martin Wendt (http://wwWendt.de)
+	Dual licensed under the MIT or GPL Version 2 licenses.
+	http://code.google.com/p/dynatree/wiki/LicenseInfo
+    
+This code is:
+
+	Copyright (c) 2008-2011, GlebTV
+	Dual licensed under the MIT or GPL Version 2 licenses.
