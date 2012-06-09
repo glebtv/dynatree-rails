@@ -31,7 +31,40 @@ js:
     //= require dynatree/jquery.dynatree
 
 For dynatree usage and examples see: http://code.google.com/p/dynatree/
-    
+
+## An optional model-to-javascript tree renderer for mongoid_nested_set
+
+Can be used to turn association select to a tree select, like this:
+
+    #checkboxes
+        = f.association :categories, as: :check_boxes, collection: Category.all
+    #tree.controls.input{style: 'width: 220px;'}
+
+    :javascript
+        var categories = #{Dynatree::Renderer.new(Category.nested_set.all, f.object.categories).render()};
+        $(function(){
+            $('#checkboxes').hide();
+
+            $("#tree").dynatree({
+                checkbox: true,
+                selectMode: 3,
+                classNames: {
+                    active: "dynatree-active-no"
+                },
+                children: categories
+            });
+
+            $("form").submit(function() {
+                var tree = $("#tree").dynatree("getTree"),
+                    arr = tree.serializeArray(),
+                    sel = $('#restaurant_category_ids');
+                sel.find('option:selected').removeAttr('selected');
+                $.each(arr, function(k, v) {
+                    sel.find('[value=' + v.value + ']').prop('selected', 'selected');
+                });
+            });
+        });
+
 ## Contributing
 
 1. Fork it
