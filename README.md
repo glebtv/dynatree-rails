@@ -62,9 +62,9 @@ Can be used to turn association select to a tree select, like this:
                 var tree = $("#tree").dynatree("getTree"),
                     arr = tree.serializeArray(),
                     sel = $('#checkboxes');
-                sel.find('option:selected').removeAttr('selected');
+                sel.find(':checked').prop('checked', false);
                 $.each(arr, function(k, v) {
-                    sel.find('[value=' + v.value + ']').prop('selected', 'selected');
+                    sel.find('[value=' + v.value + ']').prop('checked', true);
                 });
             });
         });
