@@ -87,5 +87,5 @@ Dynatree is
     
 This code is:
 
-	Copyright (c) 2008-2011, GlebTV
+	Copyright (c) 2012, GlebTV
 	Dual licensed under the MIT or GPL Version 2 licenses.
