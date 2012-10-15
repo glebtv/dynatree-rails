@@ -41,7 +41,16 @@ Can be used to turn association select to a tree select, like this:
     
     
     #checkboxes
-        = f.association :categories, as: :check_boxes, collection: Category.all
+        -# with simple_form
+	= f.association :categories, as: :check_boxes, collection: Category.all
+	
+	-# with formtastic
+	= f.input :categories, as: :check_boxes, collection: Category.all
+
+	-# without any
+        - Category.each do |c|      
+  	  = check_box_tag "item[category_ids][]", c.id, @item.category_ids.include?(c.id)
+
     #tree.controls.input{style: 'width: 220px;'}
 
     :javascript
