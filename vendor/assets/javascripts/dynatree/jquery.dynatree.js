@@ -2,15 +2,15 @@
 	jquery.dynatree.js
 	Dynamic tree view control, with support for lazy loading of branches.
 
-	Copyright (c) 2006-2012, Martin Wendt (http://wwWendt.de)
+	Copyright (c) 2006-2013, Martin Wendt (http://wwWendt.de)
 	Dual licensed under the MIT or GPL Version 2 licenses.
 	http://code.google.com/p/dynatree/wiki/LicenseInfo
 
 	A current version and some documentation is available at
 		http://dynatree.googlecode.com/
 
-	$Version: 1.2.2$
-	$Revision: 627, 2012-10-07 16:55:00$
+	$Version: 1.2.4$
+	$Revision: 644, 2013-02-12 21:39:36$
 
 	@depends: jquery.js
 	@depends: jquery.ui.core.js
@@ -59,9 +59,43 @@ function _log(mode, msg) {
 	} catch(e) {
 		if( !window.console ){
 			_canLog = false; // Permanently disable, when logging is not supported by the browser
+		}else if(e.number === -2146827850){
+			// fix for IE8, where window.console.log() exists, but does not support .apply()
+			window.console.log(args.join(", "));
 		}
 	}
 }
+
+/* Check browser version, since $.browser was removed in jQuery 1.9 */
+function _checkBrowser(){
+	var matched, browser;
+	function uaMatch( ua ) {
+		ua = ua.toLowerCase();
+		var match = /(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+			 /(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+			 /(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+			 /(msie) ([\w.]+)/.exec( ua ) ||
+			 ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua ) ||
+			 [];
+		return {
+			browser: match[ 1 ] || "",
+			version: match[ 2 ] || "0"
+		};
+	}
+	matched = uaMatch( navigator.userAgent );
+	browser = {};
+	 if ( matched.browser ) {
+		 browser[ matched.browser ] = true;
+		 browser.version = matched.version;
+	 }
+	 if ( browser.chrome ) {
+		 browser.webkit = true;
+	 } else if ( browser.webkit ) {
+		 browser.safari = true;
+	 }
+	 return browser;
+}
+var BROWSER = jQuery.browser || _checkBrowser();
 
 function logMsg(msg) {
 	Array.prototype.unshift.apply(arguments, ["debug"]);
@@ -114,6 +148,39 @@ function getDtNodeFromElement(el) {
 function noop() {
 }
 
+/** Compare two dotted version strings (like '10.2.3').
+ * @returns {Integer} 0: v1 == v2, -1: v1 < v2, 1: v1 > v2
+ */
+function versionCompare(v1, v2) {
+	var v1parts = ("" + v1).split("."),
+		v2parts = ("" + v2).split("."),
+		minLength = Math.min(v1parts.length, v2parts.length),
+		p1, p2, i;
+	// Compare tuple pair-by-pair.
+	for(i = 0; i < minLength; i++) {
+		// Convert to integer if possible, because "8" > "10".
+		p1 = parseInt(v1parts[i], 10);
+		p2 = parseInt(v2parts[i], 10);
+		if (isNaN(p1)){ p1 = v1parts[i]; }
+		if (isNaN(p2)){ p2 = v2parts[i]; }
+		if (p1 == p2) {
+			continue;
+		}else if (p1 > p2) {
+			return 1;
+		}else if (p1 < p2) {
+			return -1;
+		}
+		// one operand is NaN
+		return NaN;
+	}
+	// The longer tuple is always considered 'greater'
+	if (v1parts.length === v2parts.length) {
+		return 0;
+	}
+	return (v1parts.length < v2parts.length) ? -1 : 1;
+}
+
+
 /*************************************************************************
  *	Class DynaTreeNode
  */
@@ -129,8 +196,10 @@ DynaTreeNode.prototype = {
 		if ( typeof data === "string" ){
 			data = { title: data };
 		}
-		if( data.key === undefined ){
+		if( !data.key ){
 			data.key = "_" + tree._nodeCount++;
+		}else{
+			data.key = "" + data.key; // issue 371
 		}
 		this.data = $.extend({}, $.ui.dynatree.nodedatadefaults, data);
 		this.li = null; // not yet created
@@ -220,6 +289,8 @@ DynaTreeNode.prototype = {
 		} else if ( data.icon === false ) {
 			// icon == false means 'no icon'
 //			noop(); // keep JSLint happy
+		} else if ( data.iconClass ) {
+			res +=  "<span class='" + " " + data.iconClass +  "'></span>";
 		} else {
 			// icon == null means 'default icon'
 			res += cache.tagNodeIcon;
@@ -1168,7 +1239,8 @@ DynaTreeNode.prototype = {
 			var aTag = this.span.getElementsByTagName("a");
 			if(aTag[0]){
 				// issue 154, 313
-				if(!($.browser.msie && parseInt($.browser.version, 10) < 9)){
+//                if(!($.browser.msie && parseInt($.browser.version, 10) < 9)){
+				if(!(BROWSER.msie && parseInt(BROWSER.version, 10) < 9)){
 					aTag[0].focus();
 				}
 			}else{
@@ -1377,8 +1449,10 @@ DynaTreeNode.prototype = {
 			}
 		}
 		tn.removeChildren(true);
-//		this.div.removeChild(tn.div);
-		this.ul.removeChild(tn.li);
+		if(this.ul){
+//			$("li", $(this.ul)).remove(); // issue 399
+			this.ul.removeChild(tn.li); // issue 402
+		}
 		for(var i=0, l=ac.length; i<l; i++) {
 			if( ac[i] === tn ) {
 				this.childList.splice(i, 1);
@@ -2043,7 +2117,7 @@ var DynaTree = Class.create();
 
 // --- Static members ----------------------------------------------------------
 
-DynaTree.version = "$Version: 1.2.2$";
+DynaTree.version = "$Version: 1.2.4$";
 
 /*
 DynaTree._initTree = function() {
@@ -2365,7 +2439,7 @@ DynaTree.prototype = {
 		var match = null;
 		this.visit(function(node){
 //			window.console.log("%s", node);
-			if(node.data.key == key) {
+			if(node.data.key === key) {
 				match = node;
 				return false;
 			}
@@ -2516,7 +2590,7 @@ TODO: better?
 				data.tooltip = $li.attr("title"); // overrides <a title='...'>
 			}
 			if( $li.attr("id") ){
-				data.key = $li.attr("id");
+				data.key = "" + $li.attr("id");
 			}
 			// If a data attribute is present, evaluate as a JavaScript object
 			if( $li.attr("data") ) {
@@ -2685,7 +2759,8 @@ TODO: better?
 		case "helper":
 			// Only event and node argument is available
 			var $helper = $("<div class='dynatree-drag-helper'><span class='dynatree-drag-helper-img' /></div>")
-				.append($(event.target).closest('a').clone());
+				.append($(event.target).closest(".dynatree-title").clone());
+//			    .append($(event.target).closest('a').clone());
 			// issue 244: helper should be child of scrollParent
 			$("ul.dynatree-container", node.tree.divTree).append($helper);
 //			$(node.tree.divTree).append($helper);
@@ -2854,7 +2929,8 @@ $.widget("ui.dynatree", {
 	},
  */
 	_init: function() {
-		if( parseFloat($.ui.version) < 1.8 ) {
+//		if( parseFloat($.ui.version) < 1.8 ) {
+		if(versionCompare($.ui.version, "1.8") < 0){
 			// jquery.ui.core 1.8 renamed _init() to _create(): this stub assures backward compatibility
 			if(this.options.debugLevel >= 0){
 				_log("warn", "ui.dynatree._init() was called; you should upgrade to jquery.ui.core.js v1.8 or higher.");
@@ -2999,14 +3075,15 @@ $.widget("ui.dynatree", {
 
 
 // The following methods return a value (thus breaking the jQuery call chain):
-if( parseFloat($.ui.version) < 1.8 ) {
+if(versionCompare($.ui.version, "1.8") < 0){
+//if( parseFloat($.ui.version) < 1.8 ) {
 	$.ui.dynatree.getter = "getTree getRoot getActiveNode getSelectedNodes";
 }
 
 /*******************************************************************************
  * Tools in ui.dynatree namespace
  */
-$.ui.dynatree.version = "$Version: 1.2.2$";
+$.ui.dynatree.version = "$Version: 1.2.4$";
 
 /**
  * Return a DynaTreeNode object for a given DOM element
@@ -3167,7 +3244,8 @@ $.ui.dynatree.prototype.options = {
 	lastentry: undefined
 };
 //
-if( parseFloat($.ui.version) < 1.8 ) {
+if(versionCompare($.ui.version, "1.8") < 0){
+//if( parseFloat($.ui.version) < 1.8 ) {
 	$.ui.dynatree.defaults = $.ui.dynatree.prototype.options;
 }
 
@@ -3259,7 +3337,8 @@ var _registerDnd = function() {
 	// Register proxy-functions for draggable.start/drag/stop
 	$.ui.plugin.add("draggable", "connectToDynatree", {
 		start: function(event, ui) {
-			var draggable = $(this).data("draggable"),
+			// issue 386
+			var draggable = $(this).data("ui-draggable") || $(this).data("draggable"),
 				sourceNode = ui.helper.data("dtSourceNode") || null;
 //			logMsg("draggable-connectToDynatree.start, %s", sourceNode);
 //			logMsg("    this: %o", this);
@@ -3281,7 +3360,8 @@ var _registerDnd = function() {
 			}
 		},
 		drag: function(event, ui) {
-			var draggable = $(this).data("draggable"),
+			// issue 386
+			var draggable = $(this).data("ui-draggable") || $(this).data("draggable"),
 				sourceNode = ui.helper.data("dtSourceNode") || null,
 				prevTargetNode = ui.helper.data("dtTargetNode") || null,
 				targetNode = $.ui.dynatree.getNode(event.target);
@@ -3320,13 +3400,14 @@ var _registerDnd = function() {
 			// else go ahead with standard event handling
 		},
 		stop: function(event, ui) {
-			var draggable = $(this).data("draggable"),
+			// issue 386
+			var draggable = $(this).data("ui-draggable") || $(this).data("draggable"),
 				sourceNode = ui.helper.data("dtSourceNode") || null,
 				targetNode = ui.helper.data("dtTargetNode") || null,
 				mouseDownEvent = draggable._mouseDownEvent,
 				eventType = event.type,
 				dropped = (eventType == "mouseup" && event.which == 1);
-//			logMsg("draggable-connectToDynatree.stop: targetNode(from event): %s, dtTargetNode: %s", targetNode, ui.helper.data("dtTargetNode"));
+			logMsg("draggable-connectToDynatree.stop: targetNode(from event): %s, dtTargetNode: %s", targetNode, ui.helper.data("dtTargetNode"));
 //			logMsg("draggable-connectToDynatree.stop, %s", sourceNode);
 //			logMsg("    type: %o, downEvent: %o, upEvent: %o", eventType, mouseDownEvent, event);
 //			logMsg("    targetNode: %o", targetNode);
