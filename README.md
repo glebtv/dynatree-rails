@@ -1,6 +1,6 @@
 # Dynatree-Rails
 
-A Dynatree integration for rails 3.1 asset pipeline
+A Dynatree integration for rails 3.1+ asset pipeline
 
 http://code.google.com/p/dynatree/
 
