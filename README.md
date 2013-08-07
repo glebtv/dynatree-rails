@@ -26,8 +26,8 @@ css:
 
 or
 
-    //= require dynatree/skin
-    
+    //= require dynatree/skin-vista
+
 js:
 
     //= require dynatree/jquery.dynatree
@@ -37,18 +37,18 @@ For dynatree usage and examples see: http://code.google.com/p/dynatree/
 ## An optional model-to-javascript tree renderer for mongoid_nested_set
 
 Can be used to turn association select to a tree select, like this:
-    
-    
-    
+
+
+
     #checkboxes
         -# with simple_form
         = f.association :categories, as: :check_boxes, collection: Category.all
-	      
+
         -# with formtastic
         = f.input :categories, as: :check_boxes, collection: Category.all
-        
+
         -# without any
-        - Category.each do |c|      
+        - Category.each do |c|
           = check_box_tag "item[category_ids][]", c.id, @item.category_ids.include?(c.id)
 
     #tree.controls.input{style: 'width: 220px;'}
@@ -93,7 +93,7 @@ Dynatree is
 	Copyright (c) 2008-2011, Martin Wendt (http://wwWendt.de)
 	Dual licensed under the MIT or GPL Version 2 licenses.
 	http://code.google.com/p/dynatree/wiki/LicenseInfo
-    
+
 This code is:
 
 	Copyright (c) 2012, GlebTV
