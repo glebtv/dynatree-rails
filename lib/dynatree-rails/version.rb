@@ -1,5 +1,5 @@
 module Dynatree
   module Rails
-    VERSION = "0.1.2"
+    VERSION = "1.2.5"
   end
 end
