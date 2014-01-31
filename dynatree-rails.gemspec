@@ -5,7 +5,7 @@ Gem::Specification.new do |gem|
   gem.authors       = ["Gleb Tv"]
   gem.email         = ["glebtv@gmail.com"]
   gem.description   = %q{}
-  gem.summary       = %q{Dynatree integration for rails 3.1 asset pipeline}
+  gem.summary       = %q{Dynatree integration for rails asset pipeline}
   gem.homepage      = "https://github.com/glebtv/dynatree-rails"
 
   gem.files         = `git ls-files`.split($\)
