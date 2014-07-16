@@ -13,8 +13,8 @@ ul
     background-color: white
     border: 1px dotted gray
     overflow: auto
-    height: 100%
-    /* issue 263
+    /*  height: 100%; /* issue 263, 470
+    min-height: 0%
     ul
       padding: 0 0 0 16px
       margin: 0
@@ -48,7 +48,7 @@ ul
 
 .ui-dynatree-disabled ul.dynatree-container
   opacity: 0.5
-  /*  filter: alpha(opacity=50); /* Yields a css warning
+  /*    filter: alpha(opacity=50); /* Yields a css warning
   background-color: silver
 
 /*******************************************************************************
@@ -71,8 +71,8 @@ span
 #dynatree-drop-marker
   width: 16px
   height: 16px
-  /*  display: -moz-inline-box; /* @ FF 1+2 removed for issue 221
-  /*  -moz-box-align: start; /* issue 221
+  /*    display: -moz-inline-box; /* @ FF 1+2 removed for issue 221
+  /*    -moz-box-align: start; /* issue 221
   display: inline-block
   /* Required to make a span sizeable
   vertical-align: top
@@ -103,7 +103,7 @@ span
 /*******************************************************************************
  * Expander icon
  * Note: IE6 doesn't correctly evaluate multiples class names,
- *     so we create combined class names that can be used in the CSS.
+ *       so we create combined class names that can be used in the CSS.
  *
  * Prefix: dynatree-exp-
  * 1st character: 'e': expanded, 'c': collapsed
@@ -172,7 +172,7 @@ span.dynatree-radio
 /*******************************************************************************
  * Node type icon
  * Note: IE6 doesn't correctly evaluate multiples class names,
- *     so we create combined class names that can be used in the CSS.
+ *       so we create combined class names that can be used in the CSS.
  *
  * Prefix: dynatree-ico-
  * 1st character: 'e': expanded, 'c': collapsed
@@ -195,7 +195,7 @@ span.dynatree-icon
 
 .dynatree-statusnode-error span.dynatree-icon
   background-position: 0px -112px
-  /*  background-image: image-url("dynatree/skin/ltError.gif");
+  /*    background-image: image-url("dynatree/skin/ltError.gif");
 
 /*******************************************************************************
  * Node titles
@@ -204,9 +204,11 @@ span.dynatree-icon
  * Removed again for issue 165; (133 couldn't be reproduced)
 
 span.dynatree-node
-  /*  display: -moz-inline-box; /* issue 133, 165, 172, 192. removed for issue 221
-  /*  -moz-box-align: start; /* issue 221
-  /*  display: inline-block; /* Required to make a span sizeable
+  /*    display: -moz-inline-box; /* issue 133, 165, 172, 192. removed for issue 221
+  /*    -moz-box-align: start; /* issue 221
+  display: inline-block
+  /* issue 373 Required to make a span sizeable
+  vertical-align: top
 
 /* Remove blue color and underline from title links
 
@@ -217,7 +219,7 @@ ul.dynatree-container a
   vertical-align: top
   margin: 0px
   margin-left: 3px
-  /*  outline: 0; /* @ Firefox, prevent dotted border after click
+  /*    outline: 0; /* @ Firefox, prevent dotted border after click
   &:hover
     /*  text-decoration: underline;
     background-color: #F2F7FD
@@ -247,6 +249,7 @@ span
   &.dynatree-focused a:link
     background-color: #EFEBDE
     /* gray
+  &.dynatree-has-children! a, &.dynatree-expanded! a
   &.dynatree-selected a
     color: green
     font-style: italic
@@ -290,7 +293,7 @@ div
   position: absolute
   background-position: 0 -128px
   margin: 0
-  /*  border: 1px solid red;
+  /*    border: 1px solid red;
   &.dynatree-drop-after, &.dynatree-drop-before
     width: 64px
     background-position: 0 -144px
@@ -301,14 +304,22 @@ div
 
 span
   &.dynatree-drag-source
+    /* border: 1px dotted gray;
     background-color: #e0e0e0
     a
       color: gray
   &.dynatree-drop-target
+    /*border: 1px solid gray;
+    a!
     &.dynatree-drop-accept a
+      /*border: 1px solid green;
       background-color: #3169C6 !important
       color: white !important
+      /* @ IE6
       text-decoration: none
+    &.dynatree-drop-reject
+      /*border: 1px solid red;
+    &.dynatree-drop-after! a
   &.custom1 a
     background-color: maroon
     color: yellow
